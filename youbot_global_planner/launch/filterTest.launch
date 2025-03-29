@@ -1,0 +1,19 @@
+<launch>
+    <node pkg="youbot_global_planner" type="occupancy_grid_to_grid_map_node" name="occupancy_grid_to_grid_map_node" output="screen">
+        <param name="input_topic" value="/map" />
+        <param name="output_topic" value="/grid_map_unfiltered" />
+    </node>
+
+    <!-- Launch the grid map filters demo node. -->
+    <node pkg="grid_map_demos" type="filters_demo" name="grid_map_filter_demo" output="screen">
+        <!-- Input topic -->
+        <param name="input_topic" value="/grid_map_unfiltered" />
+        <!-- Output topic -->
+        <param name="output_topic" value="/filtered_map" />
+        <!-- Load grid map filter chain configuration -->
+        <rosparam command="load" file="$(find youbot_global_planner)/config/filters_demo_filter_chain_v2.yaml" />
+    </node>
+
+    <!-- Load the general parameters (except for filter chain) for this demo. -->
+    <rosparam command="load" file="$(find grid_map_demos)/config/filters_demo.yaml" />
+</launch>

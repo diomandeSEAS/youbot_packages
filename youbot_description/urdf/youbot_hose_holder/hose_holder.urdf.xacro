@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro/#interface">
+
+	<xacro:include filename="$(find youbot_description)/urdf/youbot_hose_holder/hose_holder.gazebo.xacro" />
+	
+	
+
+	<xacro:macro name="youbot_hose_holder" params="parent name *origin">
+
+		<!-- joint between arm_7_link and sdh_palm_link -->
+		<joint name="${name}_hose_holder_joint" type="fixed" >
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<parent link="${parent}" />
+			<child link="${name}_hose_holder_link" />
+		</joint>
+
+		<link name="${name}_hose_holder_link">
+			<inertial>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<mass value="0.1"/>
+				<inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+			</inertial>
+			
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<mesh filename="package://youbot_description/meshes/youbot_hose_holder/hose_support.dae" />
+				</geometry>
+				<material name="youBot/DarkGrey" />
+			</visual>
+			
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<!--<box size="0.050 0.094 0.054"/>-->
+					<mesh filename="package://youbot_description/meshes/youbot_hose_holder/hose_support_convex.dae" />
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${name}_hose_holder_tip_joint" type="fixed" >
+			<origin xyz="-0.09398 0 0.034798" rpy="0 0 0" />
+			<parent link="${name}_hose_holder_link" />
+			<child link="${name}_hose_holder_tip_link" />
+		</joint>
+
+		<link name="${name}_hose_holder_tip_link">
+			<inertial>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<mass value="0.01"/>
+				<inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+			</inertial>
+
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<cylinder length="0.0508" radius="0.0381" />
+				</geometry>
+				<material name="youBot/DarkGrey" />
+			</visual>
+			
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+					<cylinder length="0.0508" radius="0.0381" />
+				</geometry>
+			</collision>
+
+		</link>
+
+		<!-- extensions -->
+		<xacro:youbot_hose_holder_gazebo name="${name}" />
+
+	</xacro:macro>
+
+</robot>

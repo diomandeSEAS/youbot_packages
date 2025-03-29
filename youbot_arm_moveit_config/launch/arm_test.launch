@@ -1,0 +1,15 @@
+<launch>
+    <!-- Launch Gazebo server without GUI -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="false"/>
+    </include>
+
+    <!-- Launch YouBot Gazebo robot -->
+    <include file="$(find youbot_gazebo_robot)/launch/youbot.launch"/>
+
+    <!-- Launch RViz with a specific config file -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find youbot_arm_moveit_config)/launch/moveit.rviz"/>
+
+    <!-- Launch MoveIt! with a specific config file -->
+    <include file="$(find youbot_arm_moveit_config)/launch/move_group.launch"/>
+</launch>

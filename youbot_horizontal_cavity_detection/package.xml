@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>youbot_horizontal_cavity_detection</name>
+  <version>0.1.0</version>
+  <description>The youbot_horizontal_cavity_detection package</description>
+
+  <maintainer email="bricediomande@gmail.com">Brice Diomande</maintainer>
+  <license>BSD</license>
+
+  <!-- Catkin Dependencies -->
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>roslib</depend>
+  <depend>tf2_msgs</depend>
+  <depend>tf</depend>
+  <depend>tf_conversions</depend>
+  <depend>gazebo_msgs</depend>
+  <depend>actionlib_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>pcl_ros</depend>
+  <depend>pcl_conversions</depend>
+  <depend>tf2_ros</depend>
+  <depend>laser_geometry</depend>
+  <depend>genmsg</depend>
+  <depend>Eigen</depend>
+  <depend>grid_map_ros</depend>
+  <depend>grid_map_msgs</depend>
+  <depend>grid_map_core</depend>
+  <depend>grid_map_filters</depend>
+  <depend>filters</depend>
+  <depend>cavity_detection_api</depend>
+  <depend>cavity_detection_msgs</depend>
+  
+
+  <!-- Build tool dependencies -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

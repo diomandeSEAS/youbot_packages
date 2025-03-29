@@ -1,0 +1,7 @@
+<launch>
+    <rosparam command="load" file="$(find youbot_global_planner)/config/filters_demo_filter_chain.yaml" />
+    <!-- <node pkg="youbot_global_planner" type="occupancy_grid_to_grid_map_node" name="occupancy_grid_to_grid_map_node" output="screen">
+        <param name="input_topic" value="/map" />
+        <param name="output_topic" value="/grid_map_unfiltered" />
+    </node> -->
+</launch>

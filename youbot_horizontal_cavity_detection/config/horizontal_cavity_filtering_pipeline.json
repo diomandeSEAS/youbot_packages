@@ -1,0 +1,42 @@
+{
+    "ec": {
+        "leaf_size_x": 0.02,
+        "leaf_size_y": 0.02,
+        "leaf_size_z": 0.02,
+        "max_iterations": 1000,
+        "distance_threshold": 0.02,
+        "cluster_tolerance": 0.5,
+        "min_cluster_size": 10,
+        "max_cluster_size": 250000
+    },
+
+    "reg": {
+        "min_cluster_size": 200,
+        "max_cluster_size": 2500,
+        "number_of_neighbours": 30,
+        "smoothness_threshold": 0.3,
+        "curvature_threshold": 1
+    },
+
+    "mf":{
+        "boxfilter_xmin": -0.05,
+        "boxfilter_xmax": 1.5,
+        "boxfilter_ymin": -0.1,
+        "boxfilter_ymax": 3.0,
+        "boxfilter_zmin": 0.05,
+        "boxfilter_zmax": 0.3,
+        "gridfilter_xmin": -0.05,
+        "gridfilter_xmax": 0.05,
+        "gridfilter_ymin": -0.05,
+        "gridfilter_ymax": 0.05,
+        "gridfilter_zmin": -0.1,
+        "gridfilter_zmax": 4.0
+    },
+
+    "ca":{
+        "planefitting_eps_angle": 0.07,
+        "planefitting_max_iterations": 50,
+        "planefitting_distance_threshold": 0.02,
+        "aggregation_distance_threshold": 0.20
+    }
+}

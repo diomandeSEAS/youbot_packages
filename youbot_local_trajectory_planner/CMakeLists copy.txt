@@ -1,0 +1,150 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(brice_scripts)
+
+# Find Catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  geometry_msgs
+  roslib
+  nav_msgs
+  tf2_msgs
+  tf
+  tf_conversions
+  gazebo_msgs
+  actionlib
+  control_msgs
+  sensor_msgs
+  youbot_arm_kinematics
+  youbot_description
+  pcl_ros
+  pcl_conversions
+  tf2_ros
+  laser_geometry
+  moveit_core
+  moveit_ros_planning_interface
+  moveit_msgs
+  moveit_visual_tools
+  actionlib_msgs
+  genmsg
+  cv_bridge
+  grid_map_ros
+  grid_map_msgs
+  grid_map_core
+  grid_map_filters
+  filters
+  message_generation
+  cavity_detection_api
+  cavity_detection_msgs
+)
+
+# Find third-party libraries
+find_package(Eigen3 REQUIRED)
+find_package(orocos_kdl REQUIRED)
+find_package(drake REQUIRED)
+find_package(fmt REQUIRED)
+
+
+# Add action files
+add_action_files(
+  DIRECTORY action
+  FILES BaseTrajectoryFollowing.action
+)
+
+add_message_files(
+  FILES
+  TargetBase.msg
+)
+
+# Generate messages
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs
+  geometry_msgs
+  std_msgs
+)
+
+# Declare the catkin package
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES brice_scripts
+  CATKIN_DEPENDS 
+    roscpp rospy std_msgs geometry_msgs roslib nav_msgs tf2_msgs tf tf_conversions 
+    gazebo_msgs actionlib control_msgs sensor_msgs youbot_arm_kinematics 
+    youbot_description pcl_ros pcl_conversions tf2_ros moveit_core 
+    moveit_ros_planning_interface moveit_visual_tools moveit_msgs actionlib_msgs
+    grid_map_ros grid_map_msgs grid_map_core grid_map_filters filters cavity_detection_api
+    cavity_detection_msgs
+  DEPENDS 
+    Eigen3 orocos_kdl drake fmt OpenCV 
+)
+
+# Include directories
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${Eigen3_INCLUDE_DIRS}
+  ${orocos_kdl_INCLUDE_DIRS}
+  ${drake_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+)
+
+# Link directories (if required)
+link_directories(
+  ${drake_LIBRARY_DIRS}
+)
+
+
+# # Add executables
+# add_executable(arm_trajectory_follower_client_v4 
+#   src/MoveItArmTrajectoryFollowerClient.cpp
+# )
+
+# # Link libraries for the `arm_trajectory_follower_client_v4`
+# target_link_libraries(arm_trajectory_follower_client_v4
+#   ${catkin_LIBRARIES}
+#   ${orocos_kdl_LIBRARIES}
+#   ${moveit_LIBRARIES}
+# )
+
+add_executable(HorizontalCavitiesFiltering 
+  src/HorizontalCavityDetection.cpp
+)
+
+# Link libraries for `HorizontalCavitiesFiltering`
+target_link_libraries(HorizontalCavitiesFiltering
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}  # Explicitly link PCL libraries
+  ${OpenCV_LIBRARIES}  # Link OpenCV libraries
+)
+
+# add_executable(PlaneCalibration 
+#   src/PlaneCalibration.cpp
+# )
+
+# # Link libraries for `HorizontalCavitiesFiltering`
+# target_link_libraries(PlaneCalibration
+#   ${catkin_LIBRARIES}
+#   ${PCL_LIBRARIES}  # Explicitly link PCL libraries
+#   ${OpenCV_LIBRARIES}  # Link OpenCV libraries
+# )
+
+# Optionally set capabilities (you can remove this if not needed)
+SET(SUDO_COMMAND gksudo)
+IF($ENV{USE_NORMAL_SUDO})
+    SET(SUDO_COMMAND sudo)
+ENDIF($ENV{USE_NORMAL_SUDO})
+
+IF(USE_SETCAP)
+add_custom_command(TARGET brice_scripts POST_BUILD
+    COMMAND ${SUDO_COMMAND} setcap cap_net_raw+ep $<TARGET_FILE:brice_scripts>
+)    
+endif(USE_SETCAP)
+
+# Install Python scripts
+catkin_install_python(PROGRAMS 
+  src/BaseTrajectoryFollowerHWServer.py
+  src/BaseTrajectoryProcessingClient.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

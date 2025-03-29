@@ -1,0 +1,77 @@
+[
+  {
+    "name": "CLAHE (YCrCb)",
+    "params": {
+      "enable": true,
+      "clipLimit": 5.0,
+      "tileGrid": 3
+    }
+  },
+  {
+    "name": "RGB",
+    "params": {
+      "enable": true,
+      "rMin": 164,
+      "rMax": 255,
+      "gMin": 143,
+      "gMax": 255,
+      "bMin": 141,
+      "bMax": 255
+    }
+  },
+  {
+    "name": "HSV",
+    "params": {
+      "enable": true,
+      "hMin": 0,
+      "hMax": 179,
+      "sMin": 0,
+      "sMax": 255,
+      "vMin": 149,
+      "vMax": 255
+    }
+  },
+  {
+    "name": "Erode",
+    "params": {
+      "enable": true,
+      "kernel": 21
+    }
+  },
+  {
+    "name": "Gaussian Blur",
+    "params": {
+      "enable": true,
+      "kernel": 19
+    }
+  },
+  {
+    "name": "Dilate",
+    "params": {
+      "enable": false,
+      "kernel": 14
+    }
+  },
+  {
+    "name": "Gaussian Blur",
+    "params": {
+      "enable": true,
+      "kernel": 16
+    }
+  },
+  {
+    "name": "Contour Detection",
+    "params": {
+      "enable": true,
+      "lclip": 0.1,
+      "rclip": 0.9,
+      "tclip": 0.1,
+      "bclip": 0.9,
+      "tol": 0.01,
+      "drawAllContours": true,
+      "drawFiltered": true,
+      "nLargestContours": 1,
+      "largestCriteria": "verticalLength"
+    }
+  }
+]

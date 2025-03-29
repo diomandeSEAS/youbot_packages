@@ -1,0 +1,12 @@
+#Define the goal
+geometry_msgs/Point[] states
+geometry_msgs/Point[] velocities
+float32[] times   
+---
+#Define the result
+bool success
+
+---
+#Define the feedback
+float32 progress
+

@@ -1,0 +1,6 @@
+<launch>
+    
+
+    <!-- Launch MoveIt! with a specific config file -->
+    <include file="$(find youbot_arm_moveit_config)/launch/move_group.launch"/>
+</launch>

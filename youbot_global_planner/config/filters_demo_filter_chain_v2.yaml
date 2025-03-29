@@ -1,0 +1,65 @@
+grid_map_filters:
+  - name: nan_layer
+    type: gridMapFilters/ThresholdFilter
+    params:
+      condition_layer: occupancy_map
+      output_layer: output_nan
+      lower_threshold: -100 # alternative: upper_threshold
+      set_to: -1 # Other uses: .nan, .inf
+      compute_empty_cells: true
+  
+  - name: nan_layer2
+    type: gridMapFilters/ThresholdFilter
+    params:
+      condition_layer: output_nan
+      output_layer: output_nan
+      upper_threshold: -0.5 # alternative: upper_threshold
+      set_to: 0 # Other uses: .nan, .inf
+      compute_empty_cells: true
+
+  - name: math_expression_2
+    type: gridMapFilters/SlidingWindowMathExpressionFilter
+    params:
+      input_layer: occupancy_map
+      output_layer: output_math_expr2
+      expression: meanOfFinites(occupancy_map)
+      compute_empty_cells: false
+      edge_handling: crop # options: inside, crop, empty, mean
+      # window_size: 5 # in number of cells (optional, default: 3), make sure to make this compatible with the kernel matrix
+      window_length: 0.1 # instead of window_size, in m
+
+  - name: upper_threshold
+    type: gridMapFilters/ThresholdFilter
+    params:
+      condition_layer: output_math_expr2
+      output_layer: output_math_expr2
+      upper_threshold: 2 # alternative: upper_threshold
+      set_to: 2 # Other uses: .nan, .inf
+      compute_empty_cells: false
+
+  - name: upper_threshold5
+    type: gridMapFilters/ThresholdFilter
+    params:
+      condition_layer: output_final
+      output_layer: output_final
+      upper_threshold: 0.25 # alternative: upper_threshold
+      set_to: 100 # Other uses: .nan, .inf
+      compute_empty_cells: false
+
+  - name: lower_threshold5
+    type: gridMapFilters/ThresholdFilter
+    params:
+      condition_layer: output_final
+      output_layer: output_final
+      lower_threshold: 0.25 # alternative: upper_threshold
+      set_to: 0 # Other uses: .nan, .inf
+      compute_empty_cells: false
+
+  - name: remove_nan
+    type: gridMapFilters/ThresholdFilter
+    params:
+      condition_layer: output_nan
+      output_layer: output_final
+      lower_threshold: -0.5 # alternative: upper_threshold
+      set_to: .nan # Other uses: .nan, .inf
+      compute_empty_cells: false
