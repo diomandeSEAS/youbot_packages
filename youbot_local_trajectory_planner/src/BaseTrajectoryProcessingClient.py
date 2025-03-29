@@ -166,8 +166,8 @@ class BaseTrajectoryProcessingClient:
 
         pos_list, vel_list, time_list = [], [], []
         for i in range(self.N):
-            pos_list.append(Point(x=x[i], y=y[i], z=0))
-            vel_list.append(Point(x=xdot[i], y=ydot[i], z=0))
+            pos_list.append(Point(x=x[i], y=y[i], z=theta[i]))
+            vel_list.append(Point(x=xdot[i], y=ydot[i], z=thetadot[i]))
             time_list.append(t[i])
 
         goal.states, goal.velocities, goal.times = pos_list, vel_list, time_list
@@ -333,58 +333,58 @@ def input_with_timeout(prompt, timeout=3):
 if __name__ == '__main__':
     processor = BaseTrajectoryProcessingClient()
     # rospy.spin()
-    while not rospy.is_shutdown():
-        continue
-
-
-
-
     # while not rospy.is_shutdown():
-    #     print("Choose an action:")
-    #     print(f"0. Go to next insulation goal. Currently at {processor.InsulationDeliveryGoal}")
-    #     print("1. Execute Limit Cycle (start_pos_x start_pos_y cycle_time amplitude)")
-    #     print("2. Go To (end_goal_x end_goal_y end_goal_theta duration)")
-    #     print("3. Move by (distance_x distance_y distance_theta duration)")
-    #     print("4. Go To Tag (tag_id duration)")
-    #     print("5. Return to Start (duration)")
-    #     print("6. Stop Robot")
-    #     print("7. Exit")
+    #     continue
+
+
+
+
+    while not rospy.is_shutdown():
+        print("Choose an action:")
+        print(f"0. Go to next insulation goal. Currently at {processor.InsulationDeliveryGoal}")
+        print("1. Execute Limit Cycle (start_pos_x start_pos_y cycle_time amplitude)")
+        print("2. Go To (end_goal_x end_goal_y end_goal_theta duration)")
+        print("3. Move by (distance_x distance_y distance_theta duration)")
+        print("4. Go To Tag (tag_id duration)")
+        print("5. Return to Start (duration)")
+        print("6. Stop Robot")
+        print("7. Exit")
         
-    #     choice = input_with_timeout("Enter your choice (timeout=2s): ", timeout=2)
-    #     if choice == None:
-    #         continue
-    #     elif choice == '1':
-    #         args = input("Enter start position, cycle time, and amplitude (e.g., 0 0 10 1): ").split()
-    #         start_pos = np.array([float(args[0]), float(args[1]),0])
-    #         cycle_time = float(args[2])
-    #         amplitude = float(args[3])
-    #         processor.ExecuteLimitCycle(start_pos, cycle_time, amplitude)
-    #     elif choice == '2':
-    #         args = input("Enter end goal and duration (e.g., 1 1 0 10): ").split()
-    #         end_goal = np.array([float(args[0]), float(args[1]), float(args[2])])
-    #         duration = float(args[3])
-    #         processor.GoTo(end_goal, duration)
-    #     elif choice == '3':
-    #         args = input("Enter end goal and duration (e.g., 1 1 0 10): ").split()
-    #         end_goal = np.array([float(args[0]), float(args[1]), float(args[2])])
-    #         duration = float(args[3])
-    #         processor.MoveBy(end_goal, duration)
-    #     elif choice == '4':
-    #         args = input("Enter tag ID and duration (e.g., 1 10): ").split()
-    #         tag_id = int(args[0])
-    #         duration = float(args[1])
-    #         processor.GoToTag(tag_id, duration)
-    #     elif choice == '5':
-    #         duration = float(input("Enter duration (e.g., 10): "))
-    #         processor.returnToStart(duration)
-    #     elif choice == '6':
-    #         processor.stopRobot()
-    #     elif choice == '7':
-    #         break
-    #     elif choice == '0':
-    #         processor.GoToInsulationDeliveryGoal()
-    #     else:
-    #         print("Invalid choice. Please try again.")
+        choice = input_with_timeout("Enter your choice (timeout=2s): ", timeout=200)
+        if choice == None:
+            continue
+        elif choice == '1':
+            args = input("Enter start position, cycle time, and amplitude (e.g., 0 0 10 1): ").split()
+            start_pos = np.array([float(args[0]), float(args[1]),0])
+            cycle_time = float(args[2])
+            amplitude = float(args[3])
+            processor.ExecuteLimitCycle(start_pos, cycle_time, amplitude)
+        elif choice == '2':
+            args = input("Enter end goal and duration (e.g., 1 1 0 10): ").split()
+            end_goal = np.array([float(args[0]), float(args[1]), float(args[2])])
+            duration = float(args[3])
+            processor.GoTo(end_goal, duration)
+        elif choice == '3':
+            args = input("Enter end goal and duration (e.g., 1 1 0 10): ").split()
+            end_goal = np.array([float(args[0]), float(args[1]), float(args[2])])
+            duration = float(args[3])
+            processor.MoveBy(end_goal, duration)
+        elif choice == '4':
+            args = input("Enter tag ID and duration (e.g., 1 10): ").split()
+            tag_id = int(args[0])
+            duration = float(args[1])
+            processor.GoToTag(tag_id, duration)
+        elif choice == '5':
+            duration = float(input("Enter duration (e.g., 10): "))
+            processor.returnToStart(duration)
+        elif choice == '6':
+            processor.stopRobot()
+        elif choice == '7':
+            break
+        elif choice == '0':
+            processor.GoToInsulationDeliveryGoal()
+        else:
+            print("Invalid choice. Please try again.")
 
 
     

@@ -18,9 +18,9 @@ def publish_random_point():
         msg =TargetBase();
         time = rospy.Time.now()
         point = Point()
-        point.x = 0.05  # x = 0.05
+        point.x = 0.0  # x = 0.05
         point.y = 0.0   # y = 0.0
-        point.z = 0.0   # z = 0.0
+        point.z = 0.10   # z = 0.0
         msg.delta =point
         msg.header.stamp = time
 

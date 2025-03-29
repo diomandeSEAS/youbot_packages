@@ -96,10 +96,3 @@ add_custom_command(TARGET youbot_vertical_cavity_detection POST_BUILD
     COMMAND ${SUDO_COMMAND} setcap cap_net_raw+ep $<TARGET_FILE:youbot_vertical_cavity_detection>
 )    
 endif(USE_SETCAP)
-
-# Install Python scripts
-catkin_install_python(PROGRAMS 
-  src/BaseTrajectoryFollowerHWServer.py
-  src/BaseTrajectoryProcessingClient.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)

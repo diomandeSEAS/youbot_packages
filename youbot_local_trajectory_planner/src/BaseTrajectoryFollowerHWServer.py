@@ -6,15 +6,15 @@ from tf2_msgs.msg import TFMessage
 from gazebo_msgs.msg import ModelStates
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from pydrake.systems.controllers import DiscreteTimeLinearQuadraticRegulator as DLQR
-from pydrake.systems.controllers import LinearQuadraticRegulator as LQR
-from pydrake.all import RotationMatrix,RollPitchYaw,PiecewisePolynomial
+import control
 import matplotlib.pyplot as plt
+from scipy.interpolate import CubicHermiteSpline
 from actionlib import SimpleActionServer
 from youbot_local_trajectory_planner.msg import BaseTrajectoryFollowingAction, BaseTrajectoryFollowingFeedback, BaseTrajectoryFollowingResult
 from geometry_msgs.msg import Point
 import time
 import tf2_ros
+import tf.transformations as tf_trans
 
 class BaseTrajectoryFollowerServer:
     
@@ -58,31 +58,29 @@ class BaseTrajectoryFollowerServer:
         rospy.loginfo("Received new goal")
         states = goal.states
         velocities = goal.velocities
-        times = goal.times
-        
+        times = np.array(goal.times)
+
         # Convert states and velocities to numpy arrays
-        state_matrix = np.array([[state.x, state.y, state.z] for state in states]).T
-        velocity_matrix = np.array([[vel.x, vel.y, vel.z] for vel in velocities]).T
-        
-        # Create PiecewisePolynomial trajectory
-        # Create PiecewisePolynomial trajectory
-        traj = PiecewisePolynomial.CubicHermite(
-            times,
-            state_matrix,
-            velocity_matrix
-        )
+        state_matrix = np.array([[s.x, s.y, s.z] for s in states])  # shape: (N, 3)
+        velocity_matrix = np.array([[v.x, v.y, v.z] for v in velocities])  # shape: (N, 3)
+
+        # Create interpolators for x, y, theta
+        interpolators = []
+        for dim in range(3):
+            interpolators.append(
+                CubicHermiteSpline(times, state_matrix[:, dim], velocity_matrix[:, dim])
+            )
 
         # Discretize the trajectory
         discrete_times = np.arange(times[0], times[-1], self.dt)
-        discrete_states = np.array([traj.value(t).flatten() for t in discrete_times]).T
-        discrete_velocities = np.array([traj.EvalDerivative(t, 1).flatten() for t in discrete_times]).T
+        discrete_states = np.vstack([interp(discrete_times) for interp in interpolators])
+        discrete_velocities = np.vstack([interp.derivative()(discrete_times) for interp in interpolators])
+
         self.traj_d = np.vstack((discrete_states, discrete_velocities))
-        
-        
-        
-        # result,feedback  = self.FollowTrajectoryContinuous(traj)
+
+        # Run the controller
         result = self.FollowTrajectoryDiscrete()
-        
+
         if result.success:
             rospy.loginfo("Goal succeeded")
             self.actionServer.set_succeeded()
@@ -93,7 +91,8 @@ class BaseTrajectoryFollowerServer:
         for _ in range(10):
             if not self.actionServer.is_active():
                 self.sendVelocity(0.0, 0.0, 0.0)
-                rospy.sleep(0)
+                rospy.sleep(0.01)
+
         
       
     def set_offsets(self):
@@ -181,39 +180,55 @@ class BaseTrajectoryFollowerServer:
         
         return A, B
     
-    def CalcError(self,actual,desired):
+    def CalcError(self, actual, desired):
         actual = actual.flatten()
         desired = desired.flatten()
         error = np.zeros(6)
-        error[:2] = actual[:2]- desired[:2]
+
+        # Position and velocity differences
+        error[:2] = actual[:2] - desired[:2]
         error[3:5] = actual[3:5] - desired[3:5]
-        error[2] = RollPitchYaw([0,0,actual[2]]).ToQuaternion().z() - RollPitchYaw([0,0,desired[2]]).ToQuaternion().z()
-        error[5] = RollPitchYaw([0,0,actual[5]]).ToQuaternion().z() - RollPitchYaw([0,0,desired[5]]).ToQuaternion().z()
+
+        # Orientation and angular velocity differences using quaternions
+        quat_actual = tf_trans.quaternion_from_euler(0, 0, actual[2])
+        quat_desired = tf_trans.quaternion_from_euler(0, 0, desired[2])
+        quat_error = tf_trans.quaternion_multiply(
+            quat_actual, tf_trans.quaternion_conjugate(quat_desired)
+        )
+        _, _, yaw_error = tf_trans.euler_from_quaternion(quat_error)
+        error[2] = yaw_error
+
+        quat_actual_vel = tf_trans.quaternion_from_euler(0, 0, actual[5])
+        quat_desired_vel = tf_trans.quaternion_from_euler(0, 0, desired[5])
+        quat_error_vel = tf_trans.quaternion_multiply(
+            quat_actual_vel, tf_trans.quaternion_conjugate(quat_desired_vel)
+        )
+        _, _, yaw_dot_error = tf_trans.euler_from_quaternion(quat_error_vel)
+        error[5] = yaw_dot_error
+
         return error
         
     def GetControlInputs(self, traj_d):
         x_d, y_d, theta_d, xdot_d, ydot_d, thetadot_d = traj_d
         
-        A, B = self.linearize_around_desired_state(xdot_d, ydot_d,theta_d)
-        # Best working gains so far
-        Q = np.diag([1, 1, 0.5, 0, 0, 0])
-        R = np.diag([0.05, 0.05, 0.05])
+        A, B = self.linearize_around_desired_state(xdot_d, ydot_d, theta_d)
         
-        Q = np.diag([20, 20, 20, 10, 10, 10])/100
-        R = np.diag([0.5, 0.5, 0.5])*2000
+        Q = np.diag([0.2, 0.2, 0.2, 0.1, 0.1, 0.1])
+        R = np.diag([1000.0, 1000.0, 1000.0])
         
-        K, _ = LQR(A, B, Q, R)
+        K, _, _ = control.lqr(A, B, Q, R)
+        K = np.array(K)  # Convert from control.matlab matrix to numpy array if needed
+
         state = self.odom_to_body_state.flatten()
-        # error = state[:6] - traj_d[:6]
-        # error[2] = self.wrap_angle(error[2])
-        error = self.CalcError(state[:6],traj_d[:6])
+        error = self.CalcError(state[:6], traj_d[:6])
         
-        u = -K.dot(error)
+        u = -K @ error
         u = np.array([xdot_d, ydot_d, thetadot_d]) + u
-        
-        # #transform the world coordinate control input to world coordinate
-        R_xy = self.odom_to_body_R[:2,:2]
-        u[:2] = R_xy.T@u[:2]
+
+        # Transform the world coordinate control input to body frame
+        R_xy = self.odom_to_body_R[:2, :2]
+        u[:2] = R_xy.T @ u[:2]
+
         return u
 
     # Function to follow the desired trajectory (TEST)
